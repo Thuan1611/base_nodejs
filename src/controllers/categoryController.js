@@ -1,11 +1,21 @@
 import Category from "../models/categoryModel.js";
 import { validationResult } from "express-validator";
 
-// Lấy danh sách categories (chỉ lấy isDeleted: false)
+// Lấy danh sách categories chưa xóa mềm
 export const getAllCategories = async (req, res) => {
   try {
     const categories = await Category.find(); // lọc các bản ghi chưa bị xóa mềm
     res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//lấy danh sánh categories đã xóa mềm
+export const getDeletedCategories = async (req, res) => {
+  try {
+    const deletedCategories = await Category.find({ isDeleted: true });
+    res.status(200).json(deletedCategories);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -71,7 +81,7 @@ export const updateCategory = async (req, res) => {
 };
 
 // Xóa mềm category
-export const deleteCategory = async (req, res) => {
+export const deleteCategorySoft = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
     if (!category)
@@ -90,10 +100,51 @@ export const deleteCategory = async (req, res) => {
   }
 };
 
+//Xóa category vĩnh viễn
+export const deleteCategory = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params, id);
+    if (!category)
+      return res.status(404).json({ message: "Category not found" });
+    await Category.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Category deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//Khôi phục category đã xóa mềm
+export const restoreCategory = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    if (!category)
+      return res.status(404).json({ message: "Category not found" });
+    if (!category.isDeleted)
+      return res.status(404).json({ message: "Category is not soft deleted" });
+    const restoredCategory = await Category.findByIdAndDelete(
+      req.params.id,
+      {
+        isDeleted: false,
+        updatedAt: Date.now(),
+      },
+      { new: true }
+    );
+    res.status(200).json({
+      message: "Category restored successfully",
+      category: restoredCategory,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error, message });
+  }
+};
+
 export default {
   getAllCategories,
   getCategoryById,
   createCategory,
   updateCategory,
   deleteCategory,
+  deleteCategorySoft,
+  getDeletedCategories,
+  restoreCategory,
 };

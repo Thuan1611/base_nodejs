@@ -19,7 +19,24 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/Category'
  */
-router.get("/", categoryController.getAllCategories);
+router.get("/", categoryController.getAllCategories); //lấy dánh sach category( chưa xóa mềm)
+
+/**
+ * @swagger
+ * /categories/deleted:
+ *   get:
+ *     summary: Get all soft-deleted categories
+ *     responses:
+ *       200:
+ *         description: A list of soft-deleted categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Category'
+ */
+router.get("/deleted", categoryController.getDeletedCategories); //xem danh sách xóa mềm
 
 /**
  * @swagger
@@ -42,7 +59,7 @@ router.get("/", categoryController.getAllCategories);
  *       404:
  *         description: Category not found or soft deleted
  */
-router.get("/:id", categoryController.getCategoryById);
+router.get("/:id", categoryController.getCategoryById); //lấy chi tiết category theo id
 
 /**
  * @swagger
@@ -73,7 +90,7 @@ router.post(
     body("image").optional().isURL().withMessage("Image must be a valid URL"),
   ],
   categoryController.createCategory
-);
+); //tạo mới category
 
 /**
  * @swagger
@@ -104,7 +121,7 @@ router.post(
  *       400:
  *         description: Invalid input
  */
-router.put(
+router.patch(
   "/:id",
   [
     param("id").isMongoId().withMessage("Invalid category ID"),
@@ -119,7 +136,7 @@ router.put(
     body("image").optional().isURL().withMessage("Image must be a valid URL"),
   ],
   categoryController.updateCategory
-);
+); //cập nhật category
 
 /**
  * @swagger
@@ -140,7 +157,62 @@ router.put(
  *       400:
  *         description: Category already soft deleted
  */
-router.delete("/:id", categoryController.deleteCategory);
+router.delete("/:id", categoryController.deleteCategory); //xóa category vĩnh viễn
+
+/**
+ * @swagger
+ * /categories/soft-delete/{id}:
+ *   delete:
+ *     summary: Soft delete a category
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Category soft deleted
+ *       404:
+ *         description: Category not found
+ *       400:
+ *         description: Category already soft deleted
+ */
+router.delete("/soft-delete/:id", categoryController.deleteCategorySoft); // xóa mềm category
+
+/**
+ * @swagger
+ * /categories/{id}/restore:
+ *   patch:
+ *     summary: Restore a soft-deleted category
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Category restored
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 category:
+ *                   $ref: '#/components/schemas/Category'
+ *       404:
+ *         description: Category not found
+ *       400:
+ *         description: Category is not soft deleted
+ */
+router.patch(
+  "/:id/restore",
+  [param("id").isMongoId().withMessage("Invalid category ID")],
+  categoryController.restoreCategory
+); //khôi phục category đã xóa mềm
 
 /**
  * @swagger
