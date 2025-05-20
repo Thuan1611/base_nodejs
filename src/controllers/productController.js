@@ -5,7 +5,7 @@ class productsController{
 	try {
 		const products = await Product.find();
 		res.status(200).json({
-			message : "Lấy danh sách thành công hehe",
+			message : "Lấy danh sách thành công ",
 			data: products
 		})
 	} catch (error) {
@@ -16,11 +16,10 @@ class productsController{
 };
 	async AddProducts(req,res){
 		try {
-			const {name,price,description,image_url,category_id} = req.body;
-			console.log(req.body);
-			console.log("BODY nhận được:", req.body);
-			const products = await Product.create(req.body);
-			res.status(200).json({
+			const body = req.body;
+			console.log("BODY nhận được:", body);
+			const products = await Product.create(body);
+			return res.status(200).json({
 			message : "Lấy danh sách thành công hehe",
 			data: products
 		})
