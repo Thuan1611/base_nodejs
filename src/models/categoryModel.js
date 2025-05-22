@@ -39,3 +39,4 @@ categorySchema.pre("find", function (next) {
 });
 
 export default mongoose.model("Category", categorySchema);
+
