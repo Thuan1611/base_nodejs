@@ -23,10 +23,10 @@ app.use(
 );
 
 setupSwagger(app);
-app.use("/api", routes);
 
 // Middleware xử lý format dữ liệu JSON trả về
 app.use(formatResponseSuccess);
+app.use("/api", routes);
 
 // Middleware xử lý JSON không hợp lệ
 app.use(jsonValid);
