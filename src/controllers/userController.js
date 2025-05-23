@@ -6,11 +6,13 @@ class userControlller{
     //Đăng kí
     async signUp(req,res){
         try {
-            const { email,password } = req.body;
+            const { email,password,user_name,full_name,address,phone } = req.body;
+            console.log(req.body,"reqbody");
+            
             
             //Kiểm tra email đã tồn tại trong database chưa
             const existedEmail = await User.findOne({ email } ); 
-            console.log(existedEmail);
+            console.log(existedEmail,'email');
             
             if(existedEmail){
                 return res.status(400).json({
@@ -28,7 +30,11 @@ class userControlller{
             //Thêm user và database
             const user = await User.create({
                 email,
-                password: hashPass
+                password: hashPass,
+                user_name,
+                full_name,
+                address,
+                phone
             })
             return res.status(200).json({
                 message: "Đăng kí thành công",
@@ -44,6 +50,7 @@ class userControlller{
     async signIn(req,res){
         try {
             const {email,password} = req.body;
+            
             //Kiểm tra user trong database
             const user = await User.findOne({email});
             if(!user){
