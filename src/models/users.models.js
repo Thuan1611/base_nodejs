@@ -8,6 +8,7 @@ const userSchema = new Schema({
     full_name:{type: String,},
     address:{type: String,},
     phone:{type: String,},
+    role: {type: String,},
 },{
     timestamps: true
 })

@@ -20,9 +20,7 @@ class userControlller {
     //Mã hóa Password
     const hashPass = await bcrypt.hash(password, 10);
     if (!hashPass) {
-      return res.status(400).json({
-        message: "Mật khẩu không chính xác",
-      });
+      return res.status(400).json({ message: "Mật khẩu không chính xác" });
     }
     //Thêm user và database
     const user = await User.create({
@@ -33,7 +31,7 @@ class userControlller {
       address,
       phone,
     });
-    return res.success(user, "Đăng kí thành công hehe")
+    return res.success(user, "Đăng kí thành công hehe");
   }
   //Đăng nhập
   async signIn(req, res) {
@@ -42,7 +40,7 @@ class userControlller {
     //Kiểm tra user trong database
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Email không chính xác"  });
+      return res.status(400).json({ message: "Email không chính xác" });
     }
 
     //Kiểm tra mật khẩu lúc đăng kí và mật khẩu đã được mã hóa
