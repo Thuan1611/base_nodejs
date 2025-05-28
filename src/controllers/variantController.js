@@ -20,7 +20,6 @@ export const getDeletedVariants = async (req, res) => {
   try {
     const deletedVariants = await ProductVariant.find({
       isDeleted: true,
-      includeDeleted: true,
     })
       .populate("size_id", "name")
       .populate("color_id", "name hex_code");

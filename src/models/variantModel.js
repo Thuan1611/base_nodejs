@@ -1,3 +1,4 @@
+import { query } from "express-validator";
 import mongoose from "mongoose";
 
 const variantSchema = new mongoose.Schema(
@@ -25,14 +26,11 @@ const variantSchema = new mongoose.Schema(
 );
 
 variantSchema.pre("find", function (next) {
-  if (this.getQuery().includeDeleted) {
-    //nếu có includeDeleted thì ko lọc
-    next();
-  } else {
-    // lọc các bản ghi chưa bị xóa mềm
+  // lọc các bản ghi chưa bị xóa mềm
+  if (!this.getFilter().hasOwnProperty("isDeleted")) {
     this.where({ isDeleted: false });
-    next();
   }
+  next();
 });
 
 export default mongoose.model("Variant", variantSchema);
