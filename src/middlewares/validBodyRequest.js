@@ -6,7 +6,8 @@ const validBodyRequest = (schema) => (req, res, next) => {
 	} catch (error) {
 		const errorList = error.errors.map((err)=>{
 			return{
-				message: err.message
+				message: err.message,
+				path: err.path.join(".")
 			}
 		})
 		console.log(errorList,"errorList");
