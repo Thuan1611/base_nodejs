@@ -7,6 +7,9 @@ const categorySchema = new mongoose.Schema(
     description: { type: String },
     image: { type: String },
     slug: { type: String, required: true, unique: true },
+    products: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "website_clothers" },
+    ],
     isDeleted: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date },
@@ -34,7 +37,9 @@ categorySchema.pre("findOneAndUpdate", function (next) {
 
 // Lọc các bản ghi chưa bị xóa mềm
 categorySchema.pre("find", function (next) {
-  this.where({ isDeleted: false });
+  if (!this.getFilter().hasOwnProperty("isDeleted")) {
+    this.where({ isDeleted: false });
+  }
   next();
 });
 
