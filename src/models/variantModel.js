@@ -3,7 +3,11 @@ import mongoose from "mongoose";
 
 const variantSchema = new mongoose.Schema(
   {
-    product_id: { type: Number, required: true },
+    product_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
     size_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Size",

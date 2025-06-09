@@ -35,7 +35,7 @@ class userControlller {
       isVerified: false,
     });
     const token = generateToken(user);
-    const link = `${FRONTEND_URL}/verify-email?token=${token}`;
+    const link = `http://localhost:8888/api/users/verify-email?token=${token}`;
     await sendEmail(
       user.email,
       "Xác nhận email",
@@ -122,12 +122,12 @@ class userControlller {
     //2. Kiểm tra mật khẩu và mật khẩu xác nhận
     //3.Kiểm tra user tồn tại trong db bằng token,
     // 4. Lưu mật khẩu mới và mã hóa
-    const { token, newPassword,confirmPassword } = req.body;
+    const { token, newPassword, confirmPassword } = req.body;
     const decoded = jwt.verify(token, JWT_SECRET);
     if (!token) {
       return res.status(400).json({ message: "Không tìm thấy mã xác thực" });
     }
-    if(newPassword != confirmPassword){
+    if (newPassword != confirmPassword) {
       return res.status(400).json({ message: "Mật khẩu xác nhận không đúng" });
     }
     //Kiểm tra user
@@ -136,13 +136,12 @@ class userControlller {
       return res.status(400).json({ message: "Người dùng không tồn tại" });
     }
     //Mã hóa mật khẩu và lưu mật khẩu mã hóa
-    const hashPass = await bcrypt.hash(confirmPassword,10);
+    const hashPass = await bcrypt.hash(confirmPassword, 10);
     user.password = hashPass;
     await user.save();
     return res.status(201).json({
       message: "Đặt lại mật khẩu thành công",
-    }); 
-    
+    });
   }
 }
 
