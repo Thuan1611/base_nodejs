@@ -35,7 +35,7 @@ class userControlller {
       isVerified: false,
     });
     const token = generateToken(user);
-    const link = `${FRONTEND_URL}/verify-email?token=${token}`;
+    const link = `http://localhost:8888/api/users/verify-email?token=${token}`;
     await sendEmail(
       user.email,
       "Xác nhận email",
@@ -93,6 +93,7 @@ class userControlller {
     await user.save();
     return res.status(200).json({ message: "Xác nhận email thành công" });
   }
+  //Quên mật khẩu
   async forgotPassword(req, res) {
     // 1. kiểm tra email trên postman
     // 2. Kiểm tra email trên mongogo và log thông tin email ra
@@ -117,17 +118,18 @@ class userControlller {
       message: "Reset Password! Vui lòng kiểm tra email để xác nhận",
     });
   }
+  //Reset mật khẩu
   async resetPassword(req, res) {
     // 1. Kiểm tra token và mật khẩu và xác nhận mật khẩu mới
     //2. Kiểm tra mật khẩu và mật khẩu xác nhận
     //3.Kiểm tra user tồn tại trong db bằng token,
     // 4. Lưu mật khẩu mới và mã hóa
-    const { token, newPassword,confirmPassword } = req.body;
+    const { token, newPassword, confirmPassword } = req.body;
     const decoded = jwt.verify(token, JWT_SECRET);
     if (!token) {
       return res.status(400).json({ message: "Không tìm thấy mã xác thực" });
     }
-    if(newPassword != confirmPassword){
+    if (newPassword != confirmPassword) {
       return res.status(400).json({ message: "Mật khẩu xác nhận không đúng" });
     }
     //Kiểm tra user
@@ -136,13 +138,43 @@ class userControlller {
       return res.status(400).json({ message: "Người dùng không tồn tại" });
     }
     //Mã hóa mật khẩu và lưu mật khẩu mã hóa
-    const hashPass = await bcrypt.hash(confirmPassword,10);
+    const hashPass = await bcrypt.hash(confirmPassword, 10);
     user.password = hashPass;
     await user.save();
     return res.status(201).json({
       message: "Đặt lại mật khẩu thành công",
-    }); 
-    
+    });
+  }
+  async getProfile(req, res) {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Không tìm thấy tài khoản đăng nhập" });
+    }
+    return res.status(201).json({
+      message: "Lấy danh sách người dùng thành công",
+      data: user,
+    });
+  }
+  async updateProfile(req, res) {
+    const userId = req.user.id;
+    console.log(userId);
+
+    const { full_name, phone, address } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        full_name,
+        address,
+        phone,
+      },
+      { new: true }
+    );
+    return res
+      .status(200)
+      .json({ message: "Cập nhật thông tin user thành công", data: user });
   }
 }
 
