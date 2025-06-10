@@ -144,6 +144,7 @@ class userControlller {
     return res.status(201).json({
       message: "Đặt lại mật khẩu thành công",
     });
+    
   }
   async getProfile(req, res) {
     const user = await User.findById(req.user.id);
