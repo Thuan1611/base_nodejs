@@ -93,6 +93,7 @@ class userControlller {
     await user.save();
     return res.status(200).json({ message: "Xác nhận email thành công" });
   }
+  //Quên mật khẩu
   async forgotPassword(req, res) {
     // 1. kiểm tra email trên postman
     // 2. Kiểm tra email trên mongogo và log thông tin email ra
@@ -117,6 +118,7 @@ class userControlller {
       message: "Reset Password! Vui lòng kiểm tra email để xác nhận",
     });
   }
+  //Reset mật khẩu
   async resetPassword(req, res) {
     // 1. Kiểm tra token và mật khẩu và xác nhận mật khẩu mới
     //2. Kiểm tra mật khẩu và mật khẩu xác nhận
@@ -142,6 +144,38 @@ class userControlller {
     return res.status(201).json({
       message: "Đặt lại mật khẩu thành công",
     });
+    
+  }
+  async getProfile(req, res) {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Không tìm thấy tài khoản đăng nhập" });
+    }
+    return res.status(201).json({
+      message: "Lấy danh sách người dùng thành công",
+      data: user,
+    });
+  }
+  async updateProfile(req, res) {
+    const userId = req.user.id;
+    console.log(userId);
+
+    const { full_name, phone, address } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        full_name,
+        address,
+        phone,
+      },
+      { new: true }
+    );
+    return res
+      .status(200)
+      .json({ message: "Cập nhật thông tin user thành công", data: user });
   }
 }
 
