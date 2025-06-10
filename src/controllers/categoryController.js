@@ -1,84 +1,57 @@
 import Category from "../models/categoryModel.js";
 import { validationResult } from "express-validator";
+import { paginateAndSearch } from "../utils/paginateAndSearch.js";
 
 // Lấy danh sách categories chưa xóa mềm
 export const getAllCategories = async (req, res) => {
   try {
-    //Lấy tham số từ URL gửi lên
-    const {
-      page = 1,
-      limit = 10,
-      search = "",
-      sortBy = "createdAt",
-    } = req.query;
+    const { page, limit, search, sortBy, sortOrder } = req.query;
 
-    //Chuyển đổi chuỗi từ URL sang số nguyên
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
-
-    const query = {
-      isDeleted: false, // lọc bản ghi chưa bị xóa mềm
-    };
-
-    if (search) {
-      query.name = { $regex: search, $options: "i" }; // i ở đây là ko phân biệt chữ hoa, thường
-    }
-
-    const categories = await Category.find(query)
-      .sort({ [sortBy]: -1 })
-      .skip((pageNum - 1) * limitNum)
-      .limit(limitNum);
-
-    const total = await Category.countDocuments(query); // đếm tổng số bản ghi phù hợp để tính tổng số trang
+    const result = await paginateAndSearch({
+      model: Category,
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+      searchField: "name",
+      filter: { isDeleted: false },
+    });
 
     res.status(200).json({
-      categories,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages: Math.ceil(total / limitNum),
+      categories: result.data,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-//lấy danh sánh categories đã xóa mềm
+// Lấy danh sách categories đã xóa mềm
 export const getDeletedCategories = async (req, res) => {
   try {
-    //Lấy tham số từ URL gửi lên
-    const {
-      page = 1,
-      limit = 10,
-      search = "",
-      sortBy = "createdAt",
-    } = req.query;
+    const { page, limit, search, sortBy, sortOrder } = req.query;
 
-    //Chuyển đổi chuỗi từ URL sang số nguyên
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
-
-    const query = {
-      isDeleted: true, // lọc bản ghi đã bị xóa mềm
-    };
-
-    if (search) {
-      query.name = { $regex: search, $options: "i" }; // i ở đây là ko phân biệt chữ hoa, thường
-    }
-
-    const categories = await Category.find(query)
-      .sort({ [sortBy]: -1 })
-      .skip((pageNum - 1) * limitNum)
-      .limit(limitNum);
-
-    const total = await Category.countDocuments(query); // đếm tổng số bản ghi phù hợp để tính tổng số trang
+    const result = await paginateAndSearch({
+      model: Category,
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+      searchField: "name",
+      filter: { isDeleted: true },
+    });
 
     res.status(200).json({
-      categories,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages: Math.ceil(total / limitNum),
+      categories: result.data,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -91,12 +64,11 @@ export const getCategoryById = async (req, res) => {
     const category = await Category.findById(req.params.id).populate(
       "products"
     );
-    if (!category)
-      return res.status(404).json({ message: "Category not found" }); // ko tìm thấy category
-    if (category.isDeleted)
-      return res
-        .status(404)
-        .json({ message: "Category not found (soft deleted)" }); //nếu category bị xóa mềm r thì trả về thông báo
+
+    if (!category || category.isDeleted) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
     res.status(200).json(category);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -113,7 +85,11 @@ export const createCategory = async (req, res) => {
 
     const category = new Category(req.body);
     await category.save();
-    res.status(201).json(category);
+
+    res.status(201).json({
+      message: "Category created successfully",
+      category,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -128,19 +104,20 @@ export const updateCategory = async (req, res) => {
     }
 
     const category = await Category.findById(req.params.id);
-    if (!category)
+    if (!category || category.isDeleted) {
       return res.status(404).json({ message: "Category not found" });
-    if (category.isDeleted)
-      return res
-        .status(404)
-        .json({ message: "Category not found (soft deleted)" });
+    }
 
     const updatedCategory = await Category.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
     );
-    res.status(200).json(updatedCategory);
+
+    res.status(200).json({
+      message: "Category updated successfully",
+      category: updatedCategory,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -150,67 +127,74 @@ export const updateCategory = async (req, res) => {
 export const deleteCategorySoft = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
-    if (!category)
+    if (!category) {
       return res.status(404).json({ message: "Category not found" });
-    if (category.isDeleted)
+    }
+    if (category.isDeleted) {
       return res.status(400).json({ message: "Category already soft deleted" });
+    }
 
-    const updatedCategory = await Category.findByIdAndUpdate(
+    await Category.findByIdAndUpdate(
       req.params.id,
       { isDeleted: true, updatedAt: Date.now() },
       { new: true }
     );
+
     res.status(200).json({ message: "Category soft deleted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-//Xóa category vĩnh viễn
+// Xóa vĩnh viễn category
 export const deleteCategory = async (req, res) => {
   try {
-    const category = await Category.findById(req.params, id);
-    if (!category)
+    const category = await Category.findById(req.params.id);
+    if (!category) {
       return res.status(404).json({ message: "Category not found" });
+    }
+
     await Category.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Category deleted successfully" });
+
+    res.status(200).json({ message: "Category deleted permanently" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-//Khôi phục category đã xóa mềm
+// Khôi phục category đã xóa mềm
 export const restoreCategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
-    if (!category)
+    if (!category) {
       return res.status(404).json({ message: "Category not found" });
-    if (!category.isDeleted)
-      return res.status(404).json({ message: "Category is not soft deleted" });
-    const restoredCategory = await Category.findByIdAndDelete(
+    }
+    if (!category.isDeleted) {
+      return res.status(400).json({ message: "Category is not soft deleted" });
+    }
+
+    const restoredCategory = await Category.findByIdAndUpdate(
       req.params.id,
-      {
-        isDeleted: false,
-        updatedAt: Date.now(),
-      },
+      { isDeleted: false, updatedAt: Date.now() },
       { new: true }
     );
+
     res.status(200).json({
       message: "Category restored successfully",
       category: restoredCategory,
     });
   } catch (error) {
-    res.status(500).json({ message: error, message });
+    res.status(500).json({ message: error.message });
   }
 };
 
 export default {
   getAllCategories,
+  getDeletedCategories,
   getCategoryById,
   createCategory,
   updateCategory,
-  deleteCategory,
   deleteCategorySoft,
-  getDeletedCategories,
+  deleteCategory,
   restoreCategory,
 };
