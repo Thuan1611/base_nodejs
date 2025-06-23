@@ -1,11 +1,13 @@
 import { Router } from "express";
-import productsRouter from "./productsRouter.js";
-import categoryRoutes from "./categoryRoutes.js";
+import productsRouter from "../modules/product/productsRouter.js";
+import categoryRoutes from "../modules/category/categoryRoutes.js";
 
-import userRoutes from "./users.routes.js";
-import emailRouters from "./emailRoutes.js";
-import variantRoutes from "./variantRoutes.js";
+import userRoutes from "../modules/users/users.routes.js";
+import emailRouters from "../modules/email/emailRoutes.js";
 
+import cartRoutes from "../modules/cart/cartRoutes.js";
+
+import variantRoutes from "../modules/variant/variantRoutes.js";
 
 const routes = Router();
 
@@ -17,6 +19,9 @@ routes.use("/products", productsRouter);
 
 routes.use("/categories", categoryRoutes);
 routes.use("/variants", variantRoutes);
+
+routes.use("/cart", cartRoutes);
+
 routes.use("/users", userRoutes);
 routes.use("/emails", emailRouters);
 

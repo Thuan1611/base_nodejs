@@ -1,6 +1,6 @@
-import categoryModel from "../models/categoryModel.js";
-import Product from "../models/products.model.js";
-import createError from "../utils/createError.js";
+import categoryModel from "../category/categoryModel.js";
+import Product from "../product/products.model.js";
+import createError from "../../utils/createError.js";
 
 class productsController {
   //Lấy danh sách sản phẩm
@@ -22,7 +22,7 @@ class productsController {
       message: "Lấy danh sách thành công hehe",
       totalLength,
       currentPage: page,
-      data: products || []
+      data: products || [],
     });
   }
 
