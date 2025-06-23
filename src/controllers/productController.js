@@ -28,13 +28,18 @@ class productsController {
 
   //Lấy sản phẩm chi tiết
   async getProductsById(req, res) {
-    const id = req.params.id;
-    const products = await Product.findById(id).populate("category_id", "name");
-
-    if (!products) {
-      return createError(401, "Bạn chưa thêm sản phẩm");
-    }
-    return res.success(products, "Lấy danh sách thành công theo id");
+    try {
+      const id = req.params.id;
+      const products = await Product.findById(id).populate("category_id", "name");
+  
+      if (!products) {
+        return createError(401, "Bạn chưa thêm sản phẩm");
+      }
+      return res.success(products, "Lấy danh sách thành công theo id")
+    } catch (error) {
+        return createError(500, error);
+      
+    };
   }
   //Thêm mới sản phẩm
   async AddProducts(req, res) {

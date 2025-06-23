@@ -1,7 +1,7 @@
 import User from "../models/users.models.js";
 import bcrypt from "bcrypt";
-import { generateToken } from "../utils/jwt.js";
-import { FRONTEND_URL, JWT_SECRET, PORT } from "../configs/enviroments.js";
+import { generateResetToken, generateToken } from "../utils/jwt.js";
+import { FRONTEND_URL, JWT_SECRET, PORT, RESET_PASSWORD_EXPIRES, RESET_PASSWORD_SECRET } from "../configs/enviroments.js";
 import { sendEmail } from "../utils/sendMail.js";
 import jwt from "jsonwebtoken";
 
@@ -106,7 +106,7 @@ class userControlller {
     if (!user) {
       return res.status(400).json({ message: "Không tìm thấy tài khoản" });
     }
-    const token = generateToken(user);
+    const token = generateResetToken(user);
     const link = `${FRONTEND_URL}/forgot-password?token=${token}`;
 
     await sendEmail(
@@ -125,10 +125,10 @@ class userControlller {
     //3.Kiểm tra user tồn tại trong db bằng token,
     // 4. Lưu mật khẩu mới và mã hóa
     const { token, newPassword, confirmPassword } = req.body;
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (!token) {
+     if (!token) {
       return res.status(400).json({ message: "Không tìm thấy mã xác thực" });
     }
+    const decoded = jwt.verify(token,RESET_PASSWORD_SECRET);
     if (newPassword != confirmPassword) {
       return res.status(400).json({ message: "Mật khẩu xác nhận không đúng" });
     }
@@ -161,14 +161,12 @@ class userControlller {
     const userId = req.user.id;
     console.log(userId);
 
-    const { full_name, phone, address } = req.body;
+    const body = req.body;
 
     const user = await User.findByIdAndUpdate(
       userId,
       {
-        full_name,
-        address,
-        phone,
+        ...body
       },
       { new: true }
     );
