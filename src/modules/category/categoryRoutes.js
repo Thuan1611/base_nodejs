@@ -1,6 +1,6 @@
 import express from "express";
 import { body, param, validationResult } from "express-validator";
-import categoryController from "../controllers/categoryController.js";
+import categoryController from "../../modules/category/categoryController.js";
 
 const router = express.Router();
 

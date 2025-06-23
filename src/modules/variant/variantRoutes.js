@@ -1,5 +1,5 @@
 import express from "express";
-import * as variantController from "../controllers/variantController.js";
+import * as variantController from "../../modules/variant/variantController.js";
 import { body, param } from "express-validator";
 
 const router = express.Router();

@@ -6,9 +6,9 @@ import {
   updateItemQuantity,
   deleteItem,
   clearCart,
-} from "../controllers/cartController.js";
+} from "../cart/cartController.js";
 import { body, param } from "express-validator";
-import jwtMiddleware from "../middlewares/jwt.middleware.js";
+import jwtMiddleware from "../../middlewares/jwt.middleware.js";
 
 const router = express.Router();
 

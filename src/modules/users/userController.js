@@ -1,8 +1,8 @@
-import User from "../models/users.models.js";
+import User from "../users/users.models.js";
 import bcrypt from "bcrypt";
-import { generateToken } from "../utils/jwt.js";
-import { FRONTEND_URL, JWT_SECRET, PORT } from "../configs/enviroments.js";
-import { sendEmail } from "../utils/sendMail.js";
+import { generateToken } from "../../utils/jwt.js";
+import { FRONTEND_URL, JWT_SECRET, PORT } from "../../configs/enviroments.js";
+import { sendEmail } from "../../utils/sendMail.js";
 import jwt from "jsonwebtoken";
 
 class userControlller {
@@ -144,7 +144,6 @@ class userControlller {
     return res.status(201).json({
       message: "Đặt lại mật khẩu thành công",
     });
-    
   }
   async getProfile(req, res) {
     const user = await User.findById(req.user.id);

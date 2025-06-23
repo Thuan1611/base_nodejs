@@ -1,14 +1,13 @@
 import { Router } from "express";
-import productsRouter from "./productsRouter.js";
-import categoryRoutes from "./categoryRoutes.js";
+import productsRouter from "../modules/product/productsRouter.js";
+import categoryRoutes from "../modules/category/categoryRoutes.js";
 
-import userRoutes from "./users.routes.js";
-import emailRouters from "./emailRoutes.js";
+import userRoutes from "../modules/users/users.routes.js";
+import emailRouters from "../modules/email/emailRoutes.js";
 
-import cartRoutes from "./cartRoutes.js";
+import cartRoutes from "../modules/cart/cartRoutes.js";
 
-import variantRoutes from "./variantRoutes.js";
-
+import variantRoutes from "../modules/variant/variantRoutes.js";
 
 const routes = Router();
 

@@ -1,7 +1,7 @@
-import Cart from "../models/cartModel.js";
-import ProductVariant from "../models/variantModel.js";
-import Inventory from "../models/inventoryModel.js";
-import Product from "../models/products.model.js";
+import Cart from "../cart/cartModel.js";
+import ProductVariant from "../variant/variantModel.js";
+import Inventory from "../variant/inventoryModel.js";
+import Product from "../product/products.model.js";
 import { validationResult } from "express-validator";
 
 // Lấy giỏ hàng của người dùng

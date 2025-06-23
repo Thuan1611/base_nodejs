@@ -1,6 +1,6 @@
-import Category from "../models/categoryModel.js";
+import Category from "../../modules/category/categoryModel.js";
 import { validationResult } from "express-validator";
-import { paginateAndSearch } from "../utils/paginateAndSearch.js";
+import { paginateAndSearch } from "../../utils/paginateAndSearch.js";
 
 // Lấy danh sách categories chưa xóa mềm
 export const getAllCategories = async (req, res) => {

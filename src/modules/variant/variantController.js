@@ -1,7 +1,7 @@
-import ProductVariant from "../models/variantModel.js";
+import ProductVariant from "../variant/variantModel.js";
 import { validationResult } from "express-validator";
-import Size from "../models/sizeModel.js";
-import Color from "../models/colorModel.js";
+import Size from "../variant/sizeModel.js";
+import Color from "../variant/colorModel.js";
 
 // Lấy danh sách biến thể chưa xóa mềm
 export const getAllVariants = async (req, res) => {
