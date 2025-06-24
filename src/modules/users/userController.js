@@ -126,10 +126,10 @@ class userControlller {
     //3.Kiểm tra user tồn tại trong db bằng token,
     // 4. Lưu mật khẩu mới và mã hóa
     const { token, newPassword, confirmPassword } = req.body;
-     if (!token) {
+    if (!token) {
       return res.status(400).json({ message: "Không tìm thấy mã xác thực" });
     }
-    const decoded = jwt.verify(token,RESET_PASSWORD_SECRET);
+    const decoded = jwt.verify(token, RESET_PASSWORD_SECRET);
     if (newPassword != confirmPassword) {
       return res.status(400).json({ message: "Mật khẩu xác nhận không đúng" });
     }
@@ -167,7 +167,7 @@ class userControlller {
     const user = await User.findByIdAndUpdate(
       userId,
       {
-        ...body
+        ...body,
       },
       { new: true }
     );

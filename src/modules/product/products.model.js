@@ -7,6 +7,7 @@ const productSchema = new Schema({
     price:{type: Number},
     description:{type: String},
     image_url:{type: String},
+    isDeleted: { type: Boolean, default: false },
     category_id:{type: mongoose.Schema.Types.ObjectId, ref: "Category"},
 },{
     timestamps: true,
